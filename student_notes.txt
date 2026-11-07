@@ -1,0 +1,6 @@
+Newton's Second Law states that force equals mass multiplied by acceleration.
+
+The formula is F = ma.
+
+Force is measured in Newtons, mass is measured in kilograms,
+and acceleration is measured in metres per second squared.
