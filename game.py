@@ -1,10 +1,13 @@
-from pypdf import PdfReader
+import json
 
-def load_pdf_text(file_path):
-    reader = PdfReader(file_path)
-    extracted_text = ""
-    for page in reader.pages:
-        text = page.extract_text()
-        if text:
-            extracted_text += text + "\n"
-    return extracted_text
+def load_questions():
+
+    with open("questions.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    return data["questions"]
+
+questions = load_questions()
+
+print(questions[0]["question"])
+print(questions[0]["options"]["A"])

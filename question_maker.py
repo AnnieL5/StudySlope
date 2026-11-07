@@ -1,99 +1,105 @@
+
 import os
+import json
 import dotenv
 from groq import Groq
 
-async def question_maker(pdf_file):
-    """
-    pdf_file: FastAPI UploadFile object
-    """
+dotenv.load_dotenv()
 
-    # Load environment variables
-    dotenv.load_dotenv(".env")
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-    # Initialize Groq client
-    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-    # Save the uploaded PDF temporarily
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-        content = await pdf_file.read()
-        tmp.write(content)
-        tmp_path = tmp.name
+def generate_questions(user_information, num_questions=10):
 
-    # Load and split PDF
-    loader = PyPDFLoader(tmp_path)
-    docs = loader.load()
-
-    splitter = TokenTextSplitter(chunk_size=800, chunk_overlap=150)
-    chunks = splitter.split_documents(docs)
-    combined_text = "\n".join([chunk.page_content for chunk in chunks[:10]])
-
-    # Prompt for flashcards - modified to ensure JSON output
     prompt = f"""
-    You are an expert tutor creating study flashcards.
-    Create 10 flashcards from the following notes.
-    
-    Return ONLY a JSON array with this exact format:
-    [
-      {{"question": "question text here", "answer": "answer text here"}},
-      {{"question": "question text here", "answer": "answer text here"}}
-    ]
-    
-    Do not include any other text, explanations, or markdown formatting.
-  
-    Notes:
-    {combined_text}
+    You are an expert tutor creating multiple-choice questions.
+
+    Generate exactly {num_questions} different questions
+    based on the study notes below.
+
+    Requirements:
+    - Each question must have exactly 4 options.
+    - Label options A, B, C, D.
+    - Only one option must be correct.
+    - Make incorrect options plausible.
+    - Cover different concepts from the notes.
+    - Do not repeat questions.
+
+    Return ONLY valid JSON in this format:
+
+    {{
+        "questions": [
+            {{
+                "id": 1,
+                "question": "Question text",
+                "options": {{
+                    "A": "Option A",
+                    "B": "Option B",
+                    "C": "Option C",
+                    "D": "Option D"
+                }},
+                "correct_answer": "A"
+            }}
+        ]
+    }}
+
+    Study notes:
+    {user_information}
     """
 
-    # Query Groq
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
             {
                 "role": "system",
-                "content": "You are a tutor that makes clear and accurate flashcards. Return only valid JSON arrays, no markdown or extra text.",
+                "content": "Generate accurate educational multiple-choice questions. Return valid JSON only."
             },
-            {"role": "user", "content": prompt},
+            {
+                "role": "user",
+                "content": prompt
+            }
         ],
         temperature=0.7,
-        max_tokens=800,
+        max_tokens=3000,
+        response_format={"type": "json_object"}
     )
 
-    flashcards_text = response.choices[0].message.content.strip()
+    result = response.choices[0].message.content
 
-    # Remove markdown code blocks if present
-    flashcards_text = re.sub(r"```json\s*|\s*```", "", flashcards_text)
+    # Convert JSON string into Python dictionary
+    data = json.loads(result)
 
-    # Parse the JSON response
-    try:
-        flashcards_list = json.loads(flashcards_text)
-    except json.JSONDecodeError as e:
-        print(f"Failed to parse flashcards: {e}")
-        print(f"Response was: {flashcards_text}")
-        flashcards_list = []
+    questions = data["questions"]
 
-    # Initialize SM-2 parameters for each new card
-    for card in flashcards_list:
-        card["n"] = 0
-        card["ef"] = 2.5
-        card["interval"] = 0
-        card["due_date"] = datetime.now().strftime("%Y-%m-%d")
+    # Validate questions
+    for i, question in enumerate(questions):
 
-    # Save flashcards to set.json properly
-    try:
-        with open("set.json", "r") as f:
-            existing_data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        existing_data = []
+        if not all(key in question for key in
+                   ["question", "options", "correct_answer"]):
+            raise ValueError(f"Question {i+1} is missing required fields.")
 
-    existing_data.extend(flashcards_list)
+        if set(question["options"].keys()) != {"A", "B", "C", "D"}:
+            raise ValueError(f"Question {i+1} must have four options.")
 
-    with open("set.json", "w") as f:
-        json.dump(existing_data, f, indent=2)
+        if question["correct_answer"] not in ["A", "B", "C", "D"]:
+            raise ValueError(f"Question {i+1} has an invalid answer.")
 
-    print("\nFlashcards Generated:\n")
-    print(json.dumps(flashcards_list, indent=2))
+        question["id"] = i + 1
 
-    # Clean up temp file
-    os.remove(tmp_path)
+    if len(questions) != num_questions:
+        raise ValueError(
+            f"Expected {num_questions} questions, got {len(questions)}."
+        )
 
-    return flashcards_list
+    # Save all questions to JSON
+    with open("questions.json", "w", encoding="utf-8") as file:
+        json.dump(
+            {"questions": questions},
+            file,
+            indent=4,
+            ensure_ascii=False
+        )
+
+    print(f"Successfully saved {len(questions)} questions!")
+
+    return questions
