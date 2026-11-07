@@ -46,6 +46,15 @@ STARS_PER_QUESTION = 3       # collecting this many stars triggers a question
 STAR_POINTS = 10
 CORRECT_POINTS = 50
 
+# ---------------------------------------------------------------- Distance sensor
+USE_SENSOR = True            # False = keyboard only (no serial port is opened)
+SENSOR_PORT = "COM12"         # e.g. "COM3" on Windows, "/dev/ttyACM0" on Linux
+SENSOR_BAUD_RATE = 9600
+SENSOR_THRESHOLD = 10.0      # distance above this -> move right, below -> move left
+SENSOR_DEADZONE = 1.0        # no movement within threshold +/- deadzone (stops jitter)
+SENSOR_AVG_READINGS = 3      # rolling average over the last N readings (smoother)
+SENSOR_TIMEOUT = 0.5         # seconds without a reading before the player stops
+
 # ---------------------------------------------------------------- Colours
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

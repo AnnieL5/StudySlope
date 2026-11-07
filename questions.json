@@ -1,113 +1,113 @@
 {
     "questions": [
         {
-            "question": "What does Newton's Second Law state?",
+            "question": "What is the equation of Newton's Second Law?",
             "options": {
                 "A": "F = ma",
-                "B": "F = mv",
-                "C": "F = m²a",
-                "D": "F = ma²"
+                "B": "F = m / a",
+                "C": "a = F / m",
+                "D": "F = m + a"
             },
             "correct_answer": "A",
             "id": 1
         },
         {
-            "question": "If the mass of an object doubles while the acceleration remains constant, what happens to the force?",
+            "question": "Which unit measures force?",
             "options": {
-                "A": "It doubles",
-                "B": "It halves",
-                "C": "It quadruples",
-                "D": "It stays the same"
+                "A": "Newtons",
+                "B": "Kilograms",
+                "C": "Metres per second squared",
+                "D": "Joules"
             },
             "correct_answer": "A",
             "id": 2
         },
         {
-            "question": "In Newton's Second Law, which unit is used to measure force?",
+            "question": "What is the unit of mass?",
             "options": {
-                "A": "Newtons",
-                "B": "Kilograms",
-                "C": "Meters per second squared",
-                "D": "Joules"
+                "A": "Metres per second squared",
+                "B": "Newtons",
+                "C": "Kilograms",
+                "D": "Seconds"
             },
-            "correct_answer": "A",
+            "correct_answer": "C",
             "id": 3
         },
         {
-            "question": "Which unit is used to measure mass in the equation F = ma?",
+            "question": "What is the unit of acceleration?",
             "options": {
                 "A": "Kilograms",
                 "B": "Newtons",
-                "C": "Meters",
-                "D": "Seconds"
+                "C": "Metres per second squared",
+                "D": "Radians"
             },
-            "correct_answer": "A",
+            "correct_answer": "C",
             "id": 4
         },
         {
-            "question": "What is the unit of acceleration in Newton's Second Law?",
+            "question": "If a force of 20 N is applied to a 4 kg mass, what is the acceleration?",
             "options": {
-                "A": "Meters per second squared",
-                "B": "Kilograms",
-                "C": "Newtons",
-                "D": "Seconds squared per meter"
+                "A": "5 m/s²",
+                "B": "8 m/s²",
+                "C": "4 m/s²",
+                "D": "2 m/s²"
             },
             "correct_answer": "A",
             "id": 5
         },
         {
-            "question": "A force of 10 N is applied to a mass of 5 kg. What is the acceleration?",
+            "question": "If a mass of 10 kg experiences an acceleration of 3 m/s², what force is acting on it?",
             "options": {
-                "A": "2 m/s²",
-                "B": "5 m/s²",
-                "C": "10 m/s²",
-                "D": "0.5 m/s²"
+                "A": "30 N",
+                "B": "13 N",
+                "C": "40 N",
+                "D": "100 N"
             },
             "correct_answer": "A",
             "id": 6
         },
         {
-            "question": "Rearrange the equation F = ma to solve for mass.",
+            "question": "Which of the following does not appear in Newton's Second Law?",
             "options": {
-                "A": "m = F/a",
-                "B": "m = F·a",
-                "C": "m = a/F",
-                "D": "m = a·F"
+                "A": "Force",
+                "B": "Mass",
+                "C": "Acceleration",
+                "D": "Velocity"
             },
-            "correct_answer": "A",
+            "correct_answer": "D",
             "id": 7
         },
         {
-            "question": "Rearrange the equation F = ma to solve for acceleration.",
+            "question": "Rearranging F = ma to solve for mass gives which expression?",
             "options": {
-                "A": "a = F/m",
-                "B": "a = F·m",
-                "C": "a = m/F",
-                "D": "a = F + m"
+                "A": "m = F / a",
+                "B": "m = a / F",
+                "C": "m = F * a",
+                "D": "m = F + a"
             },
             "correct_answer": "A",
             "id": 8
         },
         {
-            "question": "Which combination correctly represents the dimensional formula for force?",
+            "question": "The product of mass and acceleration is known as what?",
             "options": {
-                "A": "kg·m/s²",
-                "B": "kg·m²/s²",
-                "C": "kg/m²",
-                "D": "m/s"
+                "A": "Force",
+                "B": "Momentum",
+                "C": "Kinetic energy",
+                "D": "Weight"
             },
             "correct_answer": "A",
             "id": 9
         },
         {
-            "question": "If an object has a mass of 2 kg and accelerates at 3 m/s², what is the force acting on it?",
+            "question": "Which is the SI unit for acceleration?",
             "options": {
-                "A": "6 N",
-                "B": "6 kg",
-                "C": "6 m/s²",
-                "D": "6 kg·m/s²"
+                "A": "Newtons",
+                "B": "Kilograms",
+                "C": "Metres per second squared",
+                "D": "Metres per second"
             },
-            "correct_answer": "A",
+            "correct_answer": "C",
             "id": 10
         }
     ]
