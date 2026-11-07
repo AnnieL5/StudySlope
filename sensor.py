@@ -1,4 +1,4 @@
-"""sensor.py - reads the Arduino distance sensor and turns it into a direction.
+"""sensor.py - reads the Arduino distance sensor and maps it to a grid column.
 
 Requires pyserial:   pip install pyserial
 (The package is installed as "pyserial" but imported as "serial".)
@@ -10,8 +10,8 @@ import time
 from collections import deque
 
 from config import (
-    USE_SENSOR, SENSOR_PORT, SENSOR_BAUD_RATE, SENSOR_THRESHOLD,
-    SENSOR_DEADZONE, SENSOR_AVG_READINGS, SENSOR_TIMEOUT,
+    USE_SENSOR, SENSOR_PORT, SENSOR_BAUD_RATE, SENSOR_MIN_DIST,
+    SENSOR_MAX_DIST, SENSOR_AVG_READINGS, SENSOR_TIMEOUT, GRID_COLS,
 )
 
 try:
@@ -68,18 +68,25 @@ class DistanceSensor:
             return None
         return sum(self.readings) / len(self.readings)
 
-    def get_direction(self):
-        """Return 1 (move right), -1 (move left) or 0 (stay)."""
+    def get_target_column(self):
+        """Map the smoothed distance to a grid column, or None if no fresh data.
+
+        SENSOR_MIN_DIST -> column 0 (far left)
+        SENSOR_MAX_DIST -> last column (far right)
+        halfway between -> middle column
+        """
         average = self.average_distance
         if average is None:
-            return 0
+            return None
         if time.monotonic() - self.last_reading_time > SENSOR_TIMEOUT:
-            return 0   # sensor went quiet, so don't keep walking
-        if average > SENSOR_THRESHOLD + SENSOR_DEADZONE:
-            return 1
-        if average < SENSOR_THRESHOLD - SENSOR_DEADZONE:
-            return -1
-        return 0
+            return None   # sensor went quiet, so the player holds still
+
+        span = SENSOR_MAX_DIST - SENSOR_MIN_DIST
+        if span <= 0:
+            return None
+        ratio = (average - SENSOR_MIN_DIST) / span
+        ratio = max(0.0, min(1.0, ratio))        # clamp to 0..1
+        return round(ratio * (GRID_COLS - 1))
 
     def close(self):
         if self.arduino is not None:

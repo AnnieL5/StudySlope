@@ -73,6 +73,7 @@ def main():
     completed = 0
     correct_count = 0
     stars_collected = 0   # stars collected since the last question
+    freeze_timer = 0.0    # seconds left in the pause after a question
 
     def start_question():
         nonlocal game_state, current_question, selected_answer, stars_collected
@@ -82,13 +83,17 @@ def main():
         game_state = "question"
 
     def finish_or_resume():
-        """After a question: end the game, or go back to the tile game."""
-        nonlocal game_state
+        """After a question: end the game, or return to the (frozen) tile game.
+
+        The tree/star that was hit is already gone (GameWorld removes it on
+        collision); everything else stays where it was.
+        """
+        nonlocal game_state, freeze_timer
         if completed >= len(questions):
             game_state = "finished"
         else:
-            world.clear_entities()
-            game_state = "playing"
+            freeze_timer = FREEZE_DURATION
+            game_state = "freeze"
 
     running = True
     while running:
@@ -177,7 +182,7 @@ def main():
 
         elif game_state == "playing":
             keys = pygame.key.get_pressed()
-            for kind in world.update(dt, keys, sensor.get_direction()):
+            for kind in world.update(dt, keys, sensor.get_target_column()):
                 if kind == "star":
                     score += STAR_POINTS
                     stars_collected += 1
@@ -188,6 +193,12 @@ def main():
                     start_question()
                     break
 
+        elif game_state == "freeze":
+            # The world is NOT updated here, so everything stays frozen.
+            freeze_timer -= dt
+            if freeze_timer <= 0:
+                game_state = "playing"
+
         # ------------------------------------------------ Draw
         if game_state == "setup":
             ui.draw_setup_screen(screen, status_text, status_color, bool(user_information), mouse_pos)
@@ -195,6 +206,9 @@ def main():
             ui.draw_generating_screen(screen)
         elif game_state == "playing":
             ui.draw_game_screen(screen, world, score, completed, len(questions))
+        elif game_state == "freeze":
+            ui.draw_game_screen(screen, world, score, completed, len(questions))
+            ui.draw_freeze_overlay(screen, freeze_timer)
         elif game_state == "question":
             ui.draw_question_screen(screen, current_question, mouse_pos)
         elif game_state == "feedback":
@@ -202,6 +216,9 @@ def main():
                                     selected=selected_answer, show_feedback=True)
         elif game_state == "finished":
             ui.draw_finished_screen(screen, score, correct_count, len(questions), mouse_pos)
+
+        # if SENSOR_DEBUG and game_state in ("setup", "playing"):
+        #     ui.draw_sensor_debug(screen, sensor.debug_lines())
 
         pygame.display.flip()
 

@@ -56,13 +56,14 @@ class GameWorld:
         )
 
     # ------------------------------------------------------------ update
-    def update(self, dt, keys, sensor_direction=0):
+    def update(self, dt, keys, sensor_column=None):
         """Advance the world by dt seconds.
 
-        sensor_direction: -1 (left), 0 (none) or 1 (right) from the distance sensor.
+        sensor_column: grid column the distance sensor wants the player in
+                       (None = no sensor data).
         Returns a list of events such as ["star"] or ["tree"].
         """
-        self._move_player(dt, keys, sensor_direction)
+        self._move_player(dt, keys, sensor_column)
 
         # Scroll everything upward
         self.scroll_offset = (self.scroll_offset + SCROLL_SPEED * dt) % TILE_SIZE
@@ -83,16 +84,23 @@ class GameWorld:
 
         return self._check_collisions()
 
-    def _move_player(self, dt, keys, sensor_direction=0):
-        """Move one tile left/right. Keyboard wins; otherwise the sensor decides."""
+    def _move_player(self, dt, keys, sensor_column=None):
+        """Move one tile left/right.
+
+        Keyboard wins. Otherwise, if the sensor gives a target column, the
+        player steps one tile at a time toward it (so movement stays smooth).
+        """
         self.move_timer -= dt
         direction = 0
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             direction = -1
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             direction = 1
-        if direction == 0:
-            direction = sensor_direction
+        elif sensor_column is not None:
+            if sensor_column > self.player_col:
+                direction = 1
+            elif sensor_column < self.player_col:
+                direction = -1
 
         if direction != 0:
             self.facing = "left" if direction < 0 else "right"

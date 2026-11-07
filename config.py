@@ -43,6 +43,7 @@ SPAWN_INTERVAL_MIN = 0.5     # seconds between spawns (random in this range)
 SPAWN_INTERVAL_MAX = 1.1
 TREE_CHANCE = 0.35           # probability a spawned object is a tree
 STARS_PER_QUESTION = 3       # collecting this many stars triggers a question
+FREEZE_DURATION = 2.0        # seconds the game pauses after a question, before resuming
 STAR_POINTS = 10
 CORRECT_POINTS = 50
 
@@ -50,10 +51,13 @@ CORRECT_POINTS = 50
 USE_SENSOR = True            # False = keyboard only (no serial port is opened)
 SENSOR_PORT = "COM12"         # e.g. "COM3" on Windows, "/dev/ttyACM0" on Linux
 SENSOR_BAUD_RATE = 9600
-SENSOR_THRESHOLD = 10.0      # distance above this -> move right, below -> move left
-SENSOR_DEADZONE = 1.0        # no movement within threshold +/- deadzone (stops jitter)
+SENSOR_MIN_DIST = 4.0        # reading that puts the player at the far LEFT
+SENSOR_MAX_DIST = 20.0       # reading that puts the player at the far RIGHT
+                             # (the midpoint of the two = middle of the screen;
+                             #  readings outside the range are clamped)
 SENSOR_AVG_READINGS = 3      # rolling average over the last N readings (smoother)
 SENSOR_TIMEOUT = 0.5         # seconds without a reading before the player stops
+SENSOR_DEBUG = True          # show the sensor status panel (bottom-left) while testing
 
 # ---------------------------------------------------------------- Colours
 WHITE = (255, 255, 255)

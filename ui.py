@@ -163,6 +163,16 @@ def draw_game_screen(screen, world, score, completed, total):
               topleft=(panel_rect.x + 15, panel_rect.y + 46))
 
 
+def draw_freeze_overlay(screen, seconds_left):
+    """Dim the frozen game and show a countdown before play resumes."""
+    shade = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+    shade.fill((0, 0, 0, 110))
+    screen.blit(shade, (0, 0))
+    draw_text(screen, "Get ready!", 64, WHITE, center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20))
+    draw_text(screen, str(max(1, math.ceil(seconds_left))), 56, YELLOW,
+              center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40))
+
+
 def draw_question_screen(screen, question_data, mouse_pos, selected=None, show_feedback=False):
     """Question + four options.
 
@@ -212,3 +222,13 @@ def draw_finished_screen(screen, score, correct_count, total, mouse_pos):
     draw_text(screen, f"Correct answers: {correct_count} / {total}", 36, WHITE,
               center=(SCREEN_WIDTH // 2, 320))
     draw_button(screen, RESTART_BUTTON_RECT, "Play Again", mouse_pos)
+
+
+def draw_sensor_debug(screen, lines):
+    """Small status panel in the bottom-left corner (see SENSOR_DEBUG in config.py)."""
+    panel_rect = pygame.Rect(10, SCREEN_HEIGHT - 10 - len(lines) * 22 - 12, 540, len(lines) * 22 + 12)
+    panel = pygame.Surface(panel_rect.size, pygame.SRCALPHA)
+    pygame.draw.rect(panel, (0, 0, 0, 190), panel.get_rect(), border_radius=8)
+    screen.blit(panel, panel_rect.topleft)
+    for i, line in enumerate(lines):
+        draw_text(screen, line, 22, WHITE, topleft=(panel_rect.x + 10, panel_rect.y + 6 + i * 22))
