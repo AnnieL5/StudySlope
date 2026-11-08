@@ -10,7 +10,7 @@ import os
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 650
 FPS = 60
-WINDOW_TITLE = "AI Quiz Game"
+WINDOW_TITLE = "StudySlope"
 
 # ---------------------------------------------------------------- Quiz
 NUM_QUESTIONS = 10
@@ -24,10 +24,10 @@ ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 # Image placeholders: put your artwork at these paths.
 # If a file is missing, ui.py draws a simple coloured shape instead,
 # so the game always runs.
-PLAYER_LEFT_IMAGE = os.path.join(ASSETS_DIR, "player_left.png")
-PLAYER_RIGHT_IMAGE = os.path.join(ASSETS_DIR, "player_right.png")
+PLAYER_LEFT_IMAGE = os.path.join(ASSETS_DIR, "playerleft.png")
+PLAYER_RIGHT_IMAGE = os.path.join(ASSETS_DIR, "playerright.png")
 TREE_IMAGE = os.path.join(ASSETS_DIR, "tree.png")          # 1 tile wide x 2 tall
-STAR_IMAGE = os.path.join(ASSETS_DIR, "star.png")          # 1 x 1 tile
+STAR_IMAGE = os.path.join(ASSETS_DIR, "snowflake.png")          # 1 x 1 tile
 BACKGROUND_TILE_IMAGE = os.path.join(ASSETS_DIR, "background_tile.png")  # 1 x 1 tile
 
 # ---------------------------------------------------------------- Grid
@@ -43,7 +43,7 @@ SPAWN_INTERVAL_MIN = 0.5     # seconds between spawns (random in this range)
 SPAWN_INTERVAL_MAX = 1.1
 TREE_CHANCE = 0.35           # probability a spawned object is a tree
 STARS_PER_QUESTION = 3       # collecting this many stars triggers a question
-FREEZE_DURATION = 2.0        # seconds the game pauses after a question, before resuming
+FREEZE_DURATION = 1.0        # seconds the game pauses after a question, before resuming
 STAR_POINTS = 10
 CORRECT_POINTS = 50
 
@@ -51,8 +51,8 @@ CORRECT_POINTS = 50
 USE_SENSOR = True            # False = keyboard only (no serial port is opened)
 SENSOR_PORT = "COM12"         # e.g. "COM3" on Windows, "/dev/ttyACM0" on Linux
 SENSOR_BAUD_RATE = 9600
-SENSOR_MIN_DIST = 4.0        # reading that puts the player at the far LEFT
-SENSOR_MAX_DIST = 20.0       # reading that puts the player at the far RIGHT
+SENSOR_MIN_DIST = 0.5        # reading that puts the player at the far LEFT
+SENSOR_MAX_DIST = 25.0       # reading that puts the player at the far RIGHT
                              # (the midpoint of the two = middle of the screen;
                              #  readings outside the range are clamped)
 SENSOR_AVG_READINGS = 3      # rolling average over the last N readings (smoother)

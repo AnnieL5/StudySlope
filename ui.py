@@ -122,7 +122,7 @@ def load_assets():
 # ------------------------------------------------------------------ Screens
 def draw_setup_screen(screen, status_text, status_color, next_enabled, mouse_pos):
     screen.fill(BG_COLOR)
-    draw_text(screen, "AI Quiz Game", 64, WHITE, center=(SCREEN_WIDTH // 2, 120))
+    draw_text(screen, "StudySlope", 64, WHITE, center=(SCREEN_WIDTH // 2, 120))
     draw_button(screen, UPLOAD_BUTTON_RECT, "Upload Study Notes", mouse_pos)
     draw_text(screen, status_text, 30, status_color, center=(SCREEN_WIDTH // 2, 350))
     draw_button(screen, NEXT_BUTTON_RECT, "Next", mouse_pos, enabled=next_enabled)

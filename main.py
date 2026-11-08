@@ -182,7 +182,7 @@ def main():
 
         elif game_state == "playing":
             keys = pygame.key.get_pressed()
-            for kind in world.update(dt, keys, sensor.get_target_column()):
+            for kind in world.update(dt, keys, sensor.get_target_ratio()):
                 if kind == "star":
                     score += STAR_POINTS
                     stars_collected += 1

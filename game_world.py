@@ -8,8 +8,15 @@ import pygame
 
 from config import (
     TILE_SIZE, GRID_COLS, SCREEN_HEIGHT, PLAYER_ROW, SCROLL_SPEED,
-    MOVE_COOLDOWN, SPAWN_INTERVAL_MIN, SPAWN_INTERVAL_MAX, TREE_CHANCE,
+    SPAWN_INTERVAL_MIN, SPAWN_INTERVAL_MAX, TREE_CHANCE,
 )
+
+# ---- Player movement (from the old sensor prototype)
+SMOOTHING = 0.15      # each frame (at 60 FPS) the player covers 15% of the gap to the target
+KEY_SPEED = 400       # pixels per second the target moves when using the keyboard
+
+WORLD_WIDTH = GRID_COLS * TILE_SIZE
+MAX_PLAYER_X = WORLD_WIDTH - TILE_SIZE
 
 
 class Entity:
@@ -36,12 +43,12 @@ class GameWorld:
         self.reset()
 
     def reset(self):
-        self.player_col = GRID_COLS // 2
-        self.facing = "right"          # "left" or "right" -> picks player image
+        self.player_x = MAX_PLAYER_X / 2     # smooth pixel position
+        self.target_x = self.player_x        # where the player is gliding to
+        self.facing = "right"                # "left" or "right" -> picks player image
         self.entities = []
         self.spawn_timer = 1.0
-        self.move_timer = 0.0
-        self.scroll_offset = 0.0       # used to scroll the background tiles
+        self.scroll_offset = 0.0             # used to scroll the background tiles
 
     def clear_entities(self):
         """Remove everything on screen (used when returning from a question)."""
@@ -49,21 +56,27 @@ class GameWorld:
         self.spawn_timer = 1.0
 
     @property
+    def player_col(self):
+        """Grid column the player is mostly in (kept so other code still works)."""
+        col = int((self.player_x + TILE_SIZE / 2) // TILE_SIZE)
+        return max(0, min(GRID_COLS - 1, col))
+
+    @property
     def player_rect(self):
         return pygame.Rect(
-            self.player_col * TILE_SIZE, PLAYER_ROW * TILE_SIZE,
+            round(self.player_x), PLAYER_ROW * TILE_SIZE,
             TILE_SIZE, TILE_SIZE,
         )
 
     # ------------------------------------------------------------ update
-    def update(self, dt, keys, sensor_column=None):
+    def update(self, dt, keys, sensor_ratio=None):
         """Advance the world by dt seconds.
 
-        sensor_column: grid column the distance sensor wants the player in
-                       (None = no sensor data).
+        sensor_ratio: 0.0 (far left) to 1.0 (far right) from the distance
+                      sensor, or None if there is no fresh sensor data.
         Returns a list of events such as ["star"] or ["tree"].
         """
-        self._move_player(dt, keys, sensor_column)
+        self._move_player(dt, keys, sensor_ratio)
 
         # Scroll everything upward
         self.scroll_offset = (self.scroll_offset + SCROLL_SPEED * dt) % TILE_SIZE
@@ -84,29 +97,36 @@ class GameWorld:
 
         return self._check_collisions()
 
-    def _move_player(self, dt, keys, sensor_column=None):
-        """Move one tile left/right.
+    def _move_player(self, dt, keys, sensor_ratio=None):
+        """Glide the player toward a target x position.
 
-        Keyboard wins. Otherwise, if the sensor gives a target column, the
-        player steps one tile at a time toward it (so movement stays smooth).
+        Keyboard wins and nudges the target left/right. Otherwise the sensor
+        sets the target directly. Either way the player eases toward the
+        target a little each frame, exactly like the old prototype.
         """
-        self.move_timer -= dt
         direction = 0
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             direction = -1
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             direction = 1
-        elif sensor_column is not None:
-            if sensor_column > self.player_col:
-                direction = 1
-            elif sensor_column < self.player_col:
-                direction = -1
 
         if direction != 0:
-            self.facing = "left" if direction < 0 else "right"
-            if self.move_timer <= 0:
-                self.player_col = max(0, min(GRID_COLS - 1, self.player_col + direction))
-                self.move_timer = MOVE_COOLDOWN
+            self.target_x += direction * KEY_SPEED * dt
+        elif sensor_ratio is not None:
+            self.target_x = sensor_ratio * MAX_PLAYER_X
+        self.target_x = max(0.0, min(MAX_PLAYER_X, self.target_x))
+
+        # Same easing as the old code, adjusted so it behaves the same at any frame rate
+        factor = 1 - (1 - SMOOTHING) ** (dt * 60)
+        old_x = self.player_x
+        self.player_x += (self.target_x - self.player_x) * factor
+        self.player_x = max(0.0, min(MAX_PLAYER_X, self.player_x))
+
+        moved = self.player_x - old_x
+        if moved < -0.1:
+            self.facing = "left"
+        elif moved > 0.1:
+            self.facing = "right"
 
     def _spawn_entity(self):
         kind = "tree" if random.random() < TREE_CHANCE else "star"
